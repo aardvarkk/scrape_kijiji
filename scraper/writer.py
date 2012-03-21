@@ -13,11 +13,23 @@ def write_listings(c, path):
     f.write('var listings = new Array();\n')
     
     # run a selection, and for each row write a new array entry
-    c.execute('''SELECT address, lat, lng FROM listings''')
+    c.execute('''SELECT address, lat, lng, price FROM listings''')
     
     # iterate through results
     for i, listing in enumerate(c.fetchall()):
-        f.write('listings[' + str(i) + '] = { name: "' + listing[0] + '", pos: new google.maps.LatLng(' + str(listing[1]) + ', ' + str(listing[2]) + ') };\n')
+        
+        # get the values to write out
+        name  = listing[0];
+        lat   = listing[1];
+        lng   = listing[2];
+        price = listing[3];
+
+        # convert from None to null for JS
+        if (lat == None): lat = 'null'
+        if (lng == None): lng = 'null'
+        if (price == None): price = 'null'
+
+        f.write('listings[' + str(i) + '] = { name: "' + name + '", pos: new google.maps.LatLng(' + str(lat) + ', ' + str(lng) + '), price: ' + str(price) + ' };\n')
     
     f.close()
     

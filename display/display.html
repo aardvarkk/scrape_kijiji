@@ -17,6 +17,7 @@
 		</style>
 		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyA0-KWBOnctYBPEt1waXCg-cFdahzFCRzw&sensor=false"></script>
 		<script type="text/javascript" src="listings.js"></script>
+		<script type="text/javascript" src="overlays.js"></script>
 		<script type="text/javascript">
 			function initialize() {
 
@@ -30,6 +31,9 @@
 
 				var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
+				// draw the overlays given the listings
+				drawOverlays(map, myLatlng, listings)
+				
 				// draw a marker for each listing
 				var markers = new Array();
 				for (var i = 0; i < listings.length; ++i) {
