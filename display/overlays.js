@@ -1,3 +1,19 @@
+function attachWindow(map, rect, centre, content) {
+	
+	var infowindow = new google.maps.InfoWindow({
+		content : content
+	});
+	
+	google.maps.event.addListener(rect, 'click', function() {
+		infowindow.open(map, new google.maps.Marker({
+			position: centre,
+			map: map,
+			visible: false
+		}));
+	});
+	
+}
+
 function drawOverlays(map, centre, listings) {
 
 	// set up values that dictate the resolution of the grid
@@ -7,16 +23,19 @@ function drawOverlays(map, centre, listings) {
 	var res = 400;
 	var blocks = 4;
 
-	// Create the centres by adjusting from the centre
-	// using a heading
+	// Centres are the rectangle centres
 	// The bounds are the rectangle bounds
+	// Windows are the info windows to pop up when you click on areas
 	var centres = new Array();
 	var bounds  = new Array();
+	var windows = new Array();
+	
 	var i, j;
 	for( i = -blocks; i <= blocks; i++) {
 		
 		centres[i + blocks] = new Array();
 		bounds [i + blocks] = new Array();
+		windows[i + blocks] = new Array();
 		
 		for( j = -blocks; j <= blocks; j++) {
 			
@@ -42,21 +61,17 @@ function drawOverlays(map, centre, listings) {
 			
 			// set the bounds
 			bounds[i + blocks][j + blocks] = new google.maps.LatLngBounds(sw, ne);
-			
-			// Temporarily show markers as debug tool
-			// new google.maps.Marker({
-				// position : centres[i + blocks][j + blocks],
-				// map : map,
-				// title : "" + j
-			// });
 
-			// Draw rectangles
-			new google.maps.Rectangle({
+			// Draw rectangles based on the rent colour
+			// A colour of null means we shouldn't draw it at all
+			var rect = new google.maps.Rectangle({
 				strokeWeight: 0.1,
 				map: map,
 				bounds: bounds[i + blocks][j + blocks]
 			})
-
+			
+			// Attach a window to each rectangle
+			attachWindow(map, rect, centres[i+blocks][j+blocks], "Hi!");
 		}
 	}
 }
