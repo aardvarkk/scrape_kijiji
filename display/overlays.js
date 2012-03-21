@@ -24,38 +24,35 @@ function drawOverlays(map, centre, listings) {
 	// total coverage is (2*blocks+1)*res both NS and EW
 	// we want the number to be odd so that we can centre it
 	// on the centre given to us
-	var res    = 400;
-	var blocks = 4;
+	var res = 200;
+	var blocks = 8;
 
 	// Centres are the rectangle centres
 	// The bounds are the rectangle bounds
 	// Windows are the info windows to pop up when you click on areas
-	var centres = new Array();
-	var bounds  = new Array();
-	var windows = new Array();
-	var rects   = new Array();
+	var squares = new Array();
 	
 	// Need these to determine what colours the rectangles should be
 	// That also means we can't do the rectangles until we've gone through
 	// the loop once calculating values
-	var whole_min = null;
-	var whole_max = null;
+	var whole_lo = null;
+	var whole_hi = null;
 	
 	for (var i = -blocks; i <= blocks; i++) {
 		
-		centres[i + blocks] = new Array();
-		bounds [i + blocks] = new Array();
-		windows[i + blocks] = new Array();
-		rects  [i + blocks] = new Array();
+		squares[i + blocks] = new Array();
 		
 		for (var j = -blocks; j <= blocks; j++) {
 			
 			var offlat;
 			var offlng;
 			
+			// add an object so we can set properties on it
+			squares[i + blocks][j + blocks] = new Object();
+			
 			offlat = google.maps.geometry.spherical.computeOffset(centre, res * i, 180);
 			offlng = google.maps.geometry.spherical.computeOffset(centre, res * j, 90);
-			centres[i + blocks][j + blocks] = new google.maps.LatLng(offlat.lat(), offlng.lng());
+			squares[i + blocks][j + blocks].centre = new google.maps.LatLng(offlat.lat(), offlng.lng());
 			
 			// calculate the corner coordinates
 			// these offsets are shifted a bit
@@ -71,67 +68,96 @@ function drawOverlays(map, centre, listings) {
 			var ne = new google.maps.LatLng(offlat.lat(), offlng.lng());
 			
 			// set the bounds
-			bounds[i + blocks][j + blocks] = new google.maps.LatLngBounds(sw, ne);
+			squares[i + blocks][j + blocks].bounds = new google.maps.LatLngBounds(sw, ne);
 
 			// calculate the rent average for this block
 			// while we're at it, find the min and max
-			var sum = 0;
-			var num = 0;
-			var min = null;
-			var max = null;
+			squares[i + blocks][j + blocks].sum = 0;
+			squares[i + blocks][j + blocks].num = 0;
+			squares[i + blocks][j + blocks].min = null;
+			squares[i + blocks][j + blocks].max = null;
 			
 			for (var k = 0; k < listings.length; k++) {
 				
-				if (bounds[i+blocks][j+blocks].contains(listings[k].pos)) {
+				if (squares[i+blocks][j+blocks].bounds.contains(listings[k].pos)) {
 				
 					// ignore listings with null prices
 					if (listings[k].price == null) continue;
 						
 					// find min and max
-					if (min == null || listings[k].price < min) {
-						min = listings[k].price;
+					if (squares[i + blocks][j + blocks].min == null || listings[k].price < squares[i + blocks][j + blocks].min) {
+						squares[i + blocks][j + blocks].min = listings[k].price;
 					}
-					if (max == null || listings[k].price > max) {
-						max = listings[k].price;
+					if (squares[i + blocks][j + blocks].max == null || listings[k].price > squares[i + blocks][j + blocks].max) {
+						squares[i + blocks][j + blocks].max = listings[k].price;
 					}						 
 					
-					sum += listings[k].price;
-					num++;
+					squares[i + blocks][j + blocks].sum += listings[k].price;
+					squares[i + blocks][j + blocks].num++;
 				}
 			}
 			
 			// Draw the rect based on the number of properties within it
 			// We will adjust its fill colour after we know the whole min and max
-			rects[i + blocks][j + blocks] = new google.maps.Rectangle({
+			squares[i + blocks][j + blocks].rect = new google.maps.Rectangle({
 				strokeWeight : 0.1,
 				fillColor : "#FF0000",
-				fillOpacity : num > 0 ? 0.25 : 0.0,
+				fillOpacity : squares[i + blocks][j + blocks].num > 0 ? 0.4 : 0.0,
 				map : map,
-				bounds : bounds[i + blocks][j + blocks]
+				bounds : squares[i + blocks][j + blocks].bounds
 			})
 
 			// Attach a window to each rectangle if there are properties in it
-			if(num > 0) {
-				attachWindow(map, rects[i + blocks][j + blocks], centres[i+blocks][j + blocks], sum / num, min, max);
+			if(squares[i + blocks][j + blocks].num > 0) {
+				
+				// calculate an average value
+				squares[i + blocks][j + blocks].avg = squares[i + blocks][j + blocks].sum / squares[i + blocks][j + blocks].num;
+				
+				attachWindow(
+					map, 
+					squares[i + blocks][j + blocks].rect, 
+					squares[i + blocks][j + blocks].centre, 
+					squares[i + blocks][j + blocks].avg, 
+					squares[i + blocks][j + blocks].min, 
+					squares[i + blocks][j + blocks].max
+					);
 			}
 
 			// Adjust the whole max/min
-			if(whole_min == null || (min != null && min < whole_min)) {
-				whole_min = min;
+			if(whole_lo == null || (squares[i + blocks][j + blocks].avg != null && squares[i + blocks][j + blocks].avg < whole_lo)) {
+				whole_lo = squares[i + blocks][j + blocks].avg;
 			}
-			if(whole_max == null || (max != null && max > whole_max)) {
-				whole_max = max;
+			if(whole_hi == null || (squares[i + blocks][j + blocks].avg != null && squares[i + blocks][j + blocks].avg > whole_hi)) {
+				whole_hi = squares[i + blocks][j + blocks].avg;
 			}
-	 
-		}
+	 	}
 	}
 	
 	// Draw rectangles based on the rent colour
 	// A colour of null means we shouldn't draw it at all
 	for (var i = -blocks; i <= blocks; i++) {
 		for (var j = -blocks; j <= blocks; j++) {
-			rects[i + blocks][j + blocks].setOptions({
-				fillColor : "#00FF00"
+			
+			// Only care about ones that have an average
+			if (squares[i + blocks][j + blocks].avg == null) continue;
+			
+			// Compare our average to the whole lo and hi to get a linear value
+			var pricey = (squares[i + blocks][j + blocks].avg - whole_lo) / (whole_hi - whole_lo); 
+			
+			// We may want to show increasing or decreasing hues...
+			var chp_hue = 240;
+			var exp_hue = 0;
+
+			var hsv = new Object();
+			hsv.h = (1 - pricey) * (chp_hue - exp_hue);
+			hsv.s = 75;
+			hsv.v = 75; 
+						
+			var rgb = new Object();
+			hsvToRgb(hsv, rgb);
+			
+			squares[i + blocks][j + blocks].rect.setOptions({
+				fillColor : rgbToHex(rgb)
 			})
 		}
 	}

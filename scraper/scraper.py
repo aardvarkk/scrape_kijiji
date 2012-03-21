@@ -37,7 +37,8 @@ def get_listing_details(link):
         if tds[0].string.strip() == "Price":
             # make sure it has a strong child, because if not, it's "please contact"
             if tds[1].find("strong") != None:
-                details['price'] = float(tds[1].find("strong").string.strip('$'))
+                # rip out the dollar sign and any commas
+                details['price'] = float(tds[1].find("strong").string.replace('$','').replace(',',''))
                 # print details['price']
             
         # address
