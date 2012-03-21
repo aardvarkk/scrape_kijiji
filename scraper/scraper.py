@@ -1,14 +1,15 @@
 rss = "http://kitchener.kijiji.ca/f-SearchAdRss?AdType=2&CatId=36&Location=1700209"
 db_name = "scraper.db"
+geocode = "http://maps.googleapis.com/maps/api/geocode/xml?"
 
 def create_tables(c):
-    c.execute('''CREATE TABLE IF NOT EXISTS listings (guid TEXT PRIMARY KEY, link TEXT, pubdate TEXT, address TEXT, price REAL)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS listings (guid TEXT PRIMARY KEY, link TEXT, pubdate TEXT, address TEXT, price REAL, lat REAL, lng REAL)''')
 
 # take the link and use it to get the price and address
 def get_listing_details(link):
     
     # set up the dictionary with default values
-    details = {'address': None, 'price': None}
+    details = {'address': None, 'price': None, 'lat': None, 'lng': None}
     
     # grab the soup from the link
     from bs4 import BeautifulSoup;
@@ -44,6 +45,11 @@ def get_listing_details(link):
             details['address'] = tds[1].contents[0].strip()
             # print details['address']
         
+    # now that we have the address, use it to calculate the lat and long using geocoding api
+    soup = BeautifulSoup(urllib.urlopen(geocode + "address=" + details['address'] + "&sensor=false&region=ca").read())
+    details['lat'] = soup.find("lat").string
+    details['lng'] = soup.find("lng").string
+        
     return details;
     
 def add_new_listings(c):
@@ -62,8 +68,8 @@ def add_new_listings(c):
         # then add it to the database
         if c.fetchone()[0] <= 0:
             details = get_listing_details(item.link.string)
-            c.execute('''INSERT INTO listings (guid, link, pubdate, address, price) VALUES(?, ?, ?, ?, ?)''', [item.guid.string, item.link.string, item.pubdate.string, details['address'], details['price']])
-            print "Added listing", details['address'], details['price']
+            c.execute('''INSERT INTO listings (guid, link, pubdate, address, price, lat, lng) VALUES(?, ?, ?, ?, ?, ?, ?)''', [item.guid.string, item.link.string, item.pubdate.string, details['address'], details['price'], details['lat'], details['lng']])
+            print "Added listing", details['address'], details['price'], details['lat'], details['lng']
         # existing listing
         else:
             pass
