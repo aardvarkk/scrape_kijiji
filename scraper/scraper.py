@@ -48,7 +48,13 @@ def get_listing_details(link):
     # now that we have the address, use it to calculate the lat and long using geocoding api
     # remove any non-ascii characters from the address in case anybody puts weird charcters
     # in the address box on the page
-    soup = BeautifulSoup(urllib.urlopen(geocode + "address=" + details['address'].encode('ascii', 'ignore') + "&sensor=false&region=ca").read())
+    geocode_addr = geocode + "address=" + details['address'].encode('ascii', 'ignore') + "&sensor=false&region=ca"
+    
+    # replace spaces with plus signs
+    geocode_addr = geocode_addr.replace(' ', '+')
+    
+    # retrieve the geocoded results
+    soup = BeautifulSoup(urllib.urlopen(geocode_addr).read())
     details['lat'] = soup.find("lat").string
     details['lng'] = soup.find("lng").string
         
