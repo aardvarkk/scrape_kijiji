@@ -30,17 +30,15 @@
 
 				var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
-				var marker1 = new google.maps.Marker({
-					position : prop1,
+				// draw a marker for each listing
+				var markers = new Array();
+				for (var i = 0; i < listings.length; ++i) {
+					markers[i] = new google.maps.Marker({
+					position : listings[i].pos,
 					map : map,
-					title : "Prop 1!"
-				});
-				
-				var marker2 = new google.maps.Marker({
-					position : prop2,
-					map : map,
-					title : "Prop 2!"
-				});
+					title : listings[i].name
+					});
+				}
 			}
 		</script>
 	</head>
