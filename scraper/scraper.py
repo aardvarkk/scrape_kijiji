@@ -1,5 +1,5 @@
 rss = "http://kitchener.kijiji.ca/f-SearchAdRss?AdType=2&CatId=36&Location=1700209"
-db_name = "scraper.db"
+db_name = "../../../../Dropbox/scraper.db"
 geocode = "http://maps.googleapis.com/maps/api/geocode/xml?"
 
 def create_tables(c):
@@ -46,7 +46,9 @@ def get_listing_details(link):
             # print details['address']
         
     # now that we have the address, use it to calculate the lat and long using geocoding api
-    soup = BeautifulSoup(urllib.urlopen(geocode + "address=" + details['address'] + "&sensor=false&region=ca").read())
+    # remove any non-ascii characters from the address in case anybody puts weird charcters
+    # in the address box on the page
+    soup = BeautifulSoup(urllib.urlopen(geocode + "address=" + details['address'].encode('ascii', 'ignore') + "&sensor=false&region=ca").read())
     details['lat'] = soup.find("lat").string
     details['lng'] = soup.find("lng").string
         
@@ -99,3 +101,5 @@ if __name__ == '__main__':
     
     conn.commit()
     c.close()
+    
+    print "Done!"
