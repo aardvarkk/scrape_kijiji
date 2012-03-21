@@ -62,16 +62,29 @@ function drawOverlays(map, centre, listings) {
 			// set the bounds
 			bounds[i + blocks][j + blocks] = new google.maps.LatLngBounds(sw, ne);
 
+			// calculate the rent average for this block
+			var avg = 0;
+			var num = 0;
+			for (var k = 0; k < listings.length; k++) {
+				if (bounds[i+blocks][j+blocks].contains(listings[k].pos)) {
+					avg += listings[k].price;
+					num++;
+				}
+			} 
+			
 			// Draw rectangles based on the rent colour
 			// A colour of null means we shouldn't draw it at all
 			var rect = new google.maps.Rectangle({
-				strokeWeight: 0.1,
-				map: map,
-				bounds: bounds[i + blocks][j + blocks]
+				strokeWeight : 0.1,
+				fillOpacity: num > 0 ? 0.25 : 0.0,
+				map : map,
+				bounds : bounds[i + blocks][j + blocks]
 			})
-			
-			// Attach a window to each rectangle
-			attachWindow(map, rect, centres[i+blocks][j+blocks], "Hi!");
+
+			if (num > 0) {
+				// Attach a window to each rectangle
+				attachWindow(map, rect, centres[i+blocks][j + blocks], "" + (avg / num));
+			}
 		}
 	}
 }
