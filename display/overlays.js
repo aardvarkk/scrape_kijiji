@@ -1,7 +1,11 @@
-function attachWindow(map, rect, centre, content) {
+function attachWindow(map, rect, centre, avg, min, max) {
 	
 	var infowindow = new google.maps.InfoWindow({
-		content : content
+		content : "<table>" + 
+		          "<tr><td>Minimum</td><td>$" + min + "</td></tr>" + 
+		          "<tr><td>Average</td><td>$" + avg + "</td></tr>" +
+		          "<tr><td>Maximum</td><td>$" + max + "</td></tr>" +
+		          "</table>"
 	});
 	
 	google.maps.event.addListener(rect, 'click', function() {
@@ -63,11 +67,27 @@ function drawOverlays(map, centre, listings) {
 			bounds[i + blocks][j + blocks] = new google.maps.LatLngBounds(sw, ne);
 
 			// calculate the rent average for this block
-			var avg = 0;
+			// while we're at it, find the min and max
+			var sum = 0;
 			var num = 0;
+			var min = 0;
+			var max = 0;
 			for (var k = 0; k < listings.length; k++) {
+				
 				if (bounds[i+blocks][j+blocks].contains(listings[k].pos)) {
-					avg += listings[k].price;
+				
+					// ignore listings with null prices
+					if (listings[k].price == null) continue;
+						
+					// find min and max
+					if (min == 0 || listings[k].price < min) {
+						min = listings[k].price;
+					}
+					if (max == 0 || listings[k].price > max) {
+						max = listings[k].price;
+					}						 
+					
+					sum += listings[k].price;
 					num++;
 				}
 			} 
@@ -76,6 +96,7 @@ function drawOverlays(map, centre, listings) {
 			// A colour of null means we shouldn't draw it at all
 			var rect = new google.maps.Rectangle({
 				strokeWeight : 0.1,
+				fillColor: "#FF0000",
 				fillOpacity: num > 0 ? 0.25 : 0.0,
 				map : map,
 				bounds : bounds[i + blocks][j + blocks]
@@ -83,7 +104,7 @@ function drawOverlays(map, centre, listings) {
 
 			if (num > 0) {
 				// Attach a window to each rectangle
-				attachWindow(map, rect, centres[i+blocks][j + blocks], "" + (avg / num));
+				attachWindow(map, rect, centres[i+blocks][j + blocks], sum / num, min, max);
 			}
 		}
 	}
