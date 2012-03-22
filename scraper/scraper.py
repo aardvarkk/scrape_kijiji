@@ -52,8 +52,12 @@ def get_listing_details(link, geocode):
     
     # retrieve the geocoded results
     soup = BeautifulSoup(urllib.urlopen(geocode_addr).read())
-    details['lat'] = soup.find("lat").string
-    details['lng'] = soup.find("lng").string
+    lat = soup.find("lat")
+    lng = soup.find("lng")
+    if (lat != None):
+        details['lat'] = lat.string
+    if (lng != None):
+        details['lng'] = lng.string
         
     return details;
     

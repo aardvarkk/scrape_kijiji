@@ -150,8 +150,8 @@ function drawOverlays(map, centre, listings) {
 
 			var hsv = new Object();
 			hsv.h = (1 - pricey) * (chp_hue - exp_hue);
-			hsv.s = 75;
-			hsv.v = 75; 
+			hsv.s = 100;
+			hsv.v = 85; 
 						
 			var rgb = new Object();
 			hsvToRgb(hsv, rgb);

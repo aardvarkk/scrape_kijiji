@@ -16,4 +16,4 @@ if __name__ == '__main__':
     # keep going forever!
     while (1):
         scraper.update(rss, db_name, geocode)
-        time.sleep(300)
+        time.sleep(600)
