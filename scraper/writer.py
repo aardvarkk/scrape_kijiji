@@ -4,7 +4,7 @@ Created on 2012-03-21
 @author: Ian
 '''
 
-db_name = "../../../../Dropbox/scraper.db"
+db_name = "../../../Dropbox/scraper.db"
 output_path = "../display/listings.js"
 
 # write out our listings using the cursor to a given path

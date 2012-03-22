@@ -1,12 +1,8 @@
-rss = "http://kitchener.kijiji.ca/f-SearchAdRss?AdType=2&CatId=36&Location=1700209"
-db_name = "../../../../Dropbox/scraper.db"
-geocode = "http://maps.googleapis.com/maps/api/geocode/xml?"
-
 def create_tables(c):
     c.execute('''CREATE TABLE IF NOT EXISTS listings (guid TEXT PRIMARY KEY, link TEXT, pubdate TEXT, address TEXT, price REAL, lat REAL, lng REAL)''')
 
 # take the link and use it to get the price and address
-def get_listing_details(link):
+def get_listing_details(link, geocode):
     
     # set up the dictionary with default values
     details = {'address': None, 'price': None, 'lat': None, 'lng': None}
@@ -61,7 +57,7 @@ def get_listing_details(link):
         
     return details;
     
-def add_new_listings(c):
+def add_new_listings(rss, c, geocode):
     
     # get the soup
     from bs4 import BeautifulSoup;
@@ -76,7 +72,7 @@ def add_new_listings(c):
         # get more details from the link
         # then add it to the database
         if c.fetchone()[0] <= 0:
-            details = get_listing_details(item.link.string)
+            details = get_listing_details(item.link.string, geocode)
             c.execute('''INSERT INTO listings (guid, link, pubdate, address, price, lat, lng) VALUES(?, ?, ?, ?, ?, ?, ?)''', [item.guid.string, item.link.string, item.pubdate.string, details['address'], details['price'], details['lat'], details['lng']])
             print "Added listing", details['address'], details['price'], details['lat'], details['lng']
         # existing listing
@@ -88,15 +84,13 @@ def add_new_listings(c):
         # print item.pubdate.string
         
 #        break
-        
-if __name__ == '__main__':
+
+def update(rss, db_name, geocode):
     
-    # print out version
-    import sys;
-    print sys.version;
+    from datetime import datetime;
+    print "Updating at", datetime.now()
     
     import sqlite3;
-
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
     
@@ -104,9 +98,17 @@ if __name__ == '__main__':
     create_tables(c)
     
     # add new listings from the feed
-    add_new_listings(c)
+    add_new_listings(rss, c, geocode)
     
     conn.commit()
     c.close()
     
     print "Done!"
+        
+if __name__ == '__main__':
+    
+    rss = "http://kitchener.kijiji.ca/f-SearchAdRss?AdType=2&CatId=36&Location=1700209"
+    db_name = "../../../Dropbox/scraper.db"
+    geocode = "http://maps.googleapis.com/maps/api/geocode/xml?"
+
+    update(rss, db_name, geocode)
