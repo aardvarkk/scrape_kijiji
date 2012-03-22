@@ -9,7 +9,11 @@ output_path = "../display/listings.js"
 
 # write out our listings using the cursor to a given path
 def write_listings(c, path):
-    f = open(path, 'w')
+    
+    # set to utf-8 output
+    import codecs
+    f = codecs.open(path, 'w', 'utf-8', 'ignore')
+
     f.write('var listings = new Array();\n')
     
     # run a selection, and for each row write a new array entry
