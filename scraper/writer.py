@@ -29,9 +29,10 @@ def write_listings(c, path):
         price = listing[3];
 
         # convert from None to null for JS
-        if (lat == None): lat = 'null'
-        if (lng == None): lng = 'null'
-        if (price == None): price = 'null'
+        if name == None: name = 'null'
+        if lat == None: lat = 'null'
+        if lng == None: lng = 'null'
+        if price == None: price = 'null'
 
         f.write('listings[' + str(i) + '] = { name: "' + name + '", pos: new google.maps.LatLng(' + str(lat) + ', ' + str(lng) + '), price: ' + str(price) + ' };\n')
     

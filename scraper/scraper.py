@@ -42,6 +42,11 @@ def get_listing_details(link, geocode):
             details['address'] = tds[1].contents[0].strip()
             # print details['address']
         
+    # if we didn't find an address, we can just skip this one because it's basically useless
+    # because we know we can't geocode it
+    if details['address'] == None: 
+        return details
+    
     # now that we have the address, use it to calculate the lat and long using geocoding api
     # remove any non-ascii characters from the address in case anybody puts weird charcters
     # in the address box on the page
@@ -59,7 +64,7 @@ def get_listing_details(link, geocode):
     if (lng != None):
         details['lng'] = lng.string
         
-    return details;
+    return details
     
 def add_new_listings(rss, c, geocode):
     
