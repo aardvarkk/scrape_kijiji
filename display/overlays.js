@@ -1,10 +1,11 @@
-function attachWindow(map, rect, centre, avg, min, max) {
+function attachWindow(map, rect, centre, avg, min, max, num) {
 	
 	var infowindow = new google.maps.InfoWindow({
 		content : "<table>" + 
 		          "<tr><td>Minimum</td><td>$" + min + "</td></tr>" + 
 		          "<tr><td>Average</td><td>$" + avg + "</td></tr>" +
 		          "<tr><td>Maximum</td><td>$" + max + "</td></tr>" +
+		          "<tr><td>Properties</td><td>" + num + "</td></tr>" +
 		          "</table>"
 	});
 	
@@ -24,7 +25,7 @@ function drawOverlays(map, centre, listings) {
 	// total coverage is (2*blocks+1)*res both NS and EW
 	// we want the number to be odd so that we can centre it
 	// on the centre given to us
-	var res = 200;
+	var res = 350;
 	var blocks = 8;
 
 	// Centres are the rectangle centres
@@ -119,7 +120,8 @@ function drawOverlays(map, centre, listings) {
 					squares[i + blocks][j + blocks].centre, 
 					squares[i + blocks][j + blocks].avg, 
 					squares[i + blocks][j + blocks].min, 
-					squares[i + blocks][j + blocks].max
+					squares[i + blocks][j + blocks].max,
+					squares[i + blocks][j + blocks].num
 					);
 			}
 
