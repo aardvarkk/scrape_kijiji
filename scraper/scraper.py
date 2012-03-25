@@ -39,7 +39,9 @@ def get_listing_details(link, geocode):
             
         # address
         if tds[0].string.strip() == "Address":
-            details['address'] = tds[1].contents[0].strip()
+            # remove any non-ascii characters from the address in case anybody puts weird charcters
+            # in the address box on the page
+            details['address'] = tds[1].contents[0].strip().encode('ascii', 'ignore')
             # print details['address']
         
     # if we didn't find an address, we can just skip this one because it's basically useless
@@ -48,9 +50,7 @@ def get_listing_details(link, geocode):
         return details
     
     # now that we have the address, use it to calculate the lat and long using geocoding api
-    # remove any non-ascii characters from the address in case anybody puts weird charcters
-    # in the address box on the page
-    geocode_addr = geocode + "address=" + details['address'].encode('ascii', 'ignore') + "&sensor=false&region=ca"
+    geocode_addr = geocode + "address=" + details['address'] + "&sensor=false&region=ca"
     
     # replace spaces with plus signs
     geocode_addr = geocode_addr.replace(' ', '+')
@@ -83,7 +83,9 @@ def add_new_listings(rss, c, geocode):
         if c.fetchone()[0] <= 0:
             details = get_listing_details(item.link.string, geocode)
             c.execute('''INSERT INTO listings (guid, link, pubdate, address, price, lat, lng) VALUES(?, ?, ?, ?, ?, ?, ?)''', [item.guid.string, item.link.string, item.pubdate.string, details['address'], details['price'], details['lat'], details['lng']])
+            
             print "Added listing", details['address'], details['price'], details['lat'], details['lng']
+        
         # existing listing
         else:
             pass
