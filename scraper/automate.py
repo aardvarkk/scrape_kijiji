@@ -5,15 +5,18 @@ Created on 2012-03-21
 '''
 
 if __name__ == '__main__':
-    
+
+    import database    
+    import locations
     import scraper
     import time
     
-    rss = "http://kitchener.kijiji.ca/f-SearchAdRss?AdType=2&CatId=36&Location=1700209"
-    db_name = "../../../Dropbox/scraper.db"
-    geocode = "http://maps.googleapis.com/maps/api/geocode/xml?"
-
     # keep going forever!
     while (1):
-        scraper.update(rss, db_name, geocode)
+        
+        # run each location
+        for location in locations.rss:
+            scraper.update(location, locations.rss[location], database.db_path + locations.listings_prefix + location + database.db_ext)
+        
+        # wait 10 minutes
         time.sleep(600)

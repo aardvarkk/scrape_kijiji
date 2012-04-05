@@ -1,3 +1,5 @@
+geocode = "http://maps.googleapis.com/maps/api/geocode/xml?"
+
 def create_tables(c):
     c.execute('''CREATE TABLE IF NOT EXISTS listings (guid TEXT PRIMARY KEY, link TEXT, pubdate TEXT, address TEXT, price REAL, lat REAL, lng REAL)''')
 
@@ -96,13 +98,16 @@ def add_new_listings(rss, c, geocode):
         
 #        break
 
-def update(rss, db_name, geocode):
+def update(location, rss, db_file):
+    
+    import sqlite3
     
     from datetime import datetime;
     print "Updating at", datetime.now()
     
-    import sqlite3;
-    conn = sqlite3.connect(db_name)
+    print db_file
+    
+    conn = sqlite3.connect(db_file)
     c = conn.cursor()
     
     # create tables if they don't exist
@@ -115,11 +120,3 @@ def update(rss, db_name, geocode):
     c.close()
     
     print "Done!"
-        
-if __name__ == '__main__':
-    
-    rss = "http://kitchener.kijiji.ca/f-SearchAdRss?AdType=2&CatId=36&Location=1700209"
-    db_name = "../../../Dropbox/scraper.db"
-    geocode = "http://maps.googleapis.com/maps/api/geocode/xml?"
-
-    update(rss, db_name, geocode)

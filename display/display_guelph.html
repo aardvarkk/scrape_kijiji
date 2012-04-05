@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="display.css" />
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyA0-KWBOnctYBPEt1waXCg-cFdahzFCRzw&libraries=geometry&sensor=false"></script>
+		<script type="text/javascript" src="listings_guelph.js"></script>
+		<script type="text/javascript" src="hsv_to_rgb.js"></script>
+		<script type="text/javascript" src="overlays.js"></script>
+		<script type="text/javascript">
+			function initialize() {
+
+				var myLatlng = new google.maps.LatLng(43.5304758, -80.2261559);
+
+				var myOptions = {
+					center : myLatlng,
+					zoom : 15,
+					mapTypeId : google.maps.MapTypeId.ROADMAP
+				};
+
+				var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+				// draw the overlays given the listings
+				drawOverlays(map, myLatlng, listings)
+
+				// draw a marker for each listing
+				//var markers = new Array();
+				//for (var i = 0; i < listings.length; ++i) {
+				//	markers[i] = new google.maps.Marker({
+				//	position : listings[i].pos,
+				//	map : map,
+				//	title : listings[i].name
+				//	});
+				//}
+			}
+		</script>
+	</head>
+	<body onload="initialize()">
+		<div id="map_canvas" style="width:100%; height:100%"></div>
+	</body>
+</html>

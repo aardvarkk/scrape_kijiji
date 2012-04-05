@@ -4,8 +4,7 @@ Created on 2012-03-21
 @author: Ian
 '''
 
-db_name = "../../../Dropbox/scraper.db"
-output_path = "../display/listings.js"
+output_path = '../display/'
 
 # write out our listings using the cursor to a given path
 def write_listings(c, path):
@@ -40,14 +39,18 @@ def write_listings(c, path):
     
 if __name__ == '__main__':
     
-    import sqlite3;
+    import database
+    import locations
+    import sqlite3
 
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
+    # write out each location
+    for location in locations.rss:
+        conn = sqlite3.connect(database.db_path + locations.listings_prefix + location + database.db_ext)
+        c = conn.cursor()
     
-    write_listings(c, output_path)
+        write_listings(c, output_path + locations.listings_prefix + location + '.js')
     
-    c.close()
+        c.close()
     
     print "Done!"
     

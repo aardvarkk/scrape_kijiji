@@ -1,28 +1,16 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<link rel="stylesheet" type="text/css" href="display.css" />
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-		<style type="text/css">
-			html {
-				height: 100%
-			}
-			body {
-				height: 100%;
-				margin: 0;
-				padding: 0
-			}
-			#map_canvas {
-				height: 100%
-			}
-		</style>
 		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyA0-KWBOnctYBPEt1waXCg-cFdahzFCRzw&libraries=geometry&sensor=false"></script>
-		<script type="text/javascript" src="listings.js"></script>
+		<script type="text/javascript" src="listings_london.js"></script>
 		<script type="text/javascript" src="hsv_to_rgb.js"></script>
 		<script type="text/javascript" src="overlays.js"></script>
 		<script type="text/javascript">
 			function initialize() {
 
-				var myLatlng = new google.maps.LatLng(43.468774, -80.539312);
+				var myLatlng = new google.maps.LatLng(43.008283, -81.2720137);
 
 				var myOptions = {
 					center : myLatlng,
