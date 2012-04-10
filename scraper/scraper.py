@@ -86,7 +86,7 @@ def add_new_listings(rss, c, geocode):
             details = get_listing_details(item.link.nextSibling, geocode)
             c.execute('''INSERT INTO listings (guid, link, pubdate, address, price, lat, lng) VALUES(?, ?, ?, ?, ?, ?, ?)''', [item.guid.string, item.link.string, item.pubdate.string, details['address'], details['price'], details['lat'], details['lng']])
             
-            print "Added listing", details['address'], details['price'], details['lat'], details['lng']
+            # print "Added listing", details['address'], details['price'], details['lat'], details['lng']
         
         # existing listing
         else:
@@ -102,10 +102,10 @@ def update(location, rss, db_file):
     
     import sqlite3
     
-    from datetime import datetime;
-    print "Updating at", datetime.now()
+    # from datetime import datetime;
+    # print "Updating", db_file, "at", datetime.now()
     
-    print db_file
+    # print db_file
     
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
@@ -119,4 +119,4 @@ def update(location, rss, db_file):
     conn.commit()
     c.close()
     
-    print "Done!"
+    # print "Done!"
