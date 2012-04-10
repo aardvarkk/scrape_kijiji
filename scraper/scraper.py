@@ -10,14 +10,14 @@ def get_listing_details(link, geocode):
     details = {'address': None, 'price': None, 'lat': None, 'lng': None}
     
     # grab the soup from the link
-    from bs4 import BeautifulSoup;
+    import BeautifulSoup;
     import urllib;
-    soup = BeautifulSoup(urllib.urlopen(link).read())
+    soup = BeautifulSoup.BeautifulSoup(urllib.urlopen(link).read())
 
-    for tr in soup.find(id="attributeTable").find_all("tr"):
+    for tr in soup.find(id="attributeTable").findAll("tr"):
         
         # get all the table data for this row
-        tds = tr.find_all("td")
+        tds = tr.findAll("td")
         
         # hope we have some!
         if not tds:
@@ -58,7 +58,7 @@ def get_listing_details(link, geocode):
     geocode_addr = geocode_addr.replace(' ', '+')
     
     # retrieve the geocoded results
-    soup = BeautifulSoup(urllib.urlopen(geocode_addr).read())
+    soup = BeautifulSoup.BeautifulSoup(urllib.urlopen(geocode_addr).read())
     lat = soup.find("lat")
     lng = soup.find("lng")
     if (lat != None):
@@ -71,19 +71,19 @@ def get_listing_details(link, geocode):
 def add_new_listings(rss, c, geocode):
     
     # get the soup
-    from bs4 import BeautifulSoup;
+    import BeautifulSoup;
     import urllib;
-    soup = BeautifulSoup(urllib.urlopen(rss).read())
-    
+    soup = BeautifulSoup.BeautifulSoup(urllib.urlopen(rss).read())
+
     # iterate through all the items
-    for item in soup.find_all("item"):
+    for item in soup.findAll('item'):
         c.execute('''SELECT COUNT(*) FROM listings WHERE guid = ?''', [item.guid.string])
-        
+
         # new listing
         # get more details from the link
         # then add it to the database
         if c.fetchone()[0] <= 0:
-            details = get_listing_details(item.link.string, geocode)
+            details = get_listing_details(item.link.nextSibling, geocode)
             c.execute('''INSERT INTO listings (guid, link, pubdate, address, price, lat, lng) VALUES(?, ?, ?, ?, ?, ?, ?)''', [item.guid.string, item.link.string, item.pubdate.string, details['address'], details['price'], details['lat'], details['lng']])
             
             print "Added listing", details['address'], details['price'], details['lat'], details['lng']
